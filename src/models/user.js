@@ -20,6 +20,10 @@ const userSchema=new mongoose.Schema({
  number:{
     type:Number,
  },
+ role:{
+  type:String,
+  default:"user"
+ },
  gender:{
     type:String
  },
