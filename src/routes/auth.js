@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt')
 userRouter.post("/signup", async (req, res) => {
   try {
     const { firstName, emailId, password,number,gender,lastName,photoUrl } = req.body;
-const passwordHash=bcrypt.hash(password,10)
+    const passwordHash=await bcrypt.hash(password,10)
     const user=await User.findOne({emailId:emailId})
 
     if(user){
@@ -31,7 +31,7 @@ const passwordHash=bcrypt.hash(password,10)
 
     const token=await jwt.sign({_id:data._id},"JINTO@123",{expiresIn:'1h'})
     res.cookie("token",token,{ expires: new Date(Date.now() + 900000) })
-    
+
     res.json({ message: "user data successfully saved", data: data });
   } catch (err) {
     res.status(400).send("ERROR :" + err.message);
