@@ -1,14 +1,14 @@
 const express=require('express');
-
-const app=express();
-
+var cookieParser = require('cookie-parser')
 const userRouter = require('./routes/auth');
 const connectDB=require('./config/database')
 
+const app=express();
 const PORT=7777
 
 
 app.use(express.json()); 
+app.use(cookieParser())
 
 app.use("/",userRouter);
 
