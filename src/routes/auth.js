@@ -1,12 +1,16 @@
 const express = require("express");
 const User = require("../models/user");
 const userRouter = express.Router();
+const jwt=require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+
 
 userRouter.post("/signup", async (req, res) => {
   try {
     const { firstName, emailId, password,number,gender,lastName,photoUrl } = req.body;
-
+const passwordHash=bcrypt.hash(password,10)
     const user=await User.findOne({emailId:emailId})
+    
     if(user){
         return res.json({
         success: false,
@@ -17,7 +21,7 @@ userRouter.post("/signup", async (req, res) => {
     const newUser = new User({
       firstName,
       emailId,
-      password,
+      password:passwordHash,
       number,
       gender,
       lastName,
