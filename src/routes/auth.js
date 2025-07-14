@@ -50,18 +50,29 @@ userRouter.post("/login",async(req,res)=>{
         message:"User not  found"
       })
     }
-    if(user.password!==password){
+
+  const isValidPassword=await bcrypt.compare(password,user.password)
+
+    if(!isValidPassword){
       return res.json({
         success:false,
         message:"pasword is not correct"
       })
-    }else{   
+    }else{
+      const token=await jwt.sign({_id:user._id},"JINTO@123",{expiresIn:'1h'})
+      res.cookie("token",token,{ expires: new Date(Date.now() + 900000) })   
       res.json({message:"login success",user})
     }
 
   }catch(err){
     res.status(400).send("ERROR"+err.message)
   }
+})
+
+
+userRouter.post("/logout",async(req,res)=>{
+  res.cookie("token",null,{expires: new Date(Date.now())})
+  res.send("logout success")
 })
 
 module.exports = userRouter;
