@@ -3,6 +3,7 @@ var cookieParser = require('cookie-parser')
 const userRouter = require('./routes/auth');
 const connectDB=require('./config/database');
 const productRouter = require('./routes/product');
+const adminRouter = require('./routes/admin');
 
 const app=express();
 const PORT=7777
@@ -12,7 +13,8 @@ app.use(express.json());
 app.use(cookieParser())
 
 app.use("/",userRouter);
-app.use("/",productRouter)
+app.use("/",productRouter);
+app.use("/",adminRouter)
 
 
 
