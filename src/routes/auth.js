@@ -27,6 +27,7 @@ userRouter.post("/signup", async (req, res) => {
       photoUrl,
     });
     const data = await newUser.save();
+    
 
     const token = await jwt.sign({ _id: data._id }, "JINTO@123", {
       expiresIn: "1h",

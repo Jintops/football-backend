@@ -4,8 +4,16 @@ const userRouter = require('./routes/auth');
 const connectDB=require('./config/database');
 const productRouter = require('./routes/product');
 const adminRouter = require('./routes/admin');
+const cors=require('cors');
+
 
 const app=express();
+
+app.use(cors({
+    origin:'http://localhost:5173',
+    credentials:true
+
+}))
 const PORT=7777
 
 
@@ -15,6 +23,7 @@ app.use(cookieParser())
 app.use("/",userRouter);
 app.use("/",productRouter);
 app.use("/",adminRouter)
+
 
 
 
