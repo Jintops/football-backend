@@ -1,9 +1,14 @@
 const mongoose=require('mongoose');
+const validator=require('validator')
 
 const userSchema=new mongoose.Schema({
  firstName:{
     type:String,
     required:true,
+    trim: true,
+    minLength: [2, "First name must be at least 2 characters long"],
+    maxLength: [30, "First name must be at most 30 characters long"]
+
  },
  lastName:{
     type:String
@@ -11,11 +16,21 @@ const userSchema=new mongoose.Schema({
  emailId:{
     type:String,
     required:true,
-    unique:true
+    unique:true,
+    validate(value){
+      if(!validator.isEmail(value)){
+      throw new Error('email is not validd....' + value)
+      }
+    }
  },
  password:{
     type:String,
-    required:true
+    required:true,
+    validate(value){
+        if(!validator.isStrongPassword(value)){
+            throw new Error('Please enter a strong password')
+        }
+    }
  },
  number:{
     type:Number,
@@ -25,7 +40,11 @@ const userSchema=new mongoose.Schema({
   default:"user"
  },
  gender:{
-    type:String
+    type:String,
+    enum: {
+      values: ['male', 'female','others'],
+      message: '{VALUE} is not supported'
+    }
  },
  photoUrl:{
     type:String
