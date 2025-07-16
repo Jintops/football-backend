@@ -32,8 +32,14 @@ const userSchema=new mongoose.Schema({
         }
     }
  },
- number:{
-    type:Number,
+ phone:{
+    type:String,
+    validate(value){
+        if(!validator.isMobilePhone(value)){
+            throw new Error('not valid phone number'+value)
+        }
+    }
+
  },
  role:{
   type:String,

@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 
 userRouter.post("/signup", async (req, res) => {
   try {
-    const { firstName, emailId, password, number, gender, lastName, photoUrl } = req.body;
+    const { firstName, emailId, password, phone, gender, lastName, photoUrl } = req.body;
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.findOne({ emailId: emailId });
 
@@ -21,13 +21,13 @@ userRouter.post("/signup", async (req, res) => {
       firstName,
       emailId,
       password: passwordHash,
-      number,
+      phone,
       gender,
       lastName,
       photoUrl,
     });
     const data = await newUser.save();
-    
+
 
     const token = await jwt.sign({ _id: data._id }, "JINTO@123", {
       expiresIn: "1h",
