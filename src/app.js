@@ -1,10 +1,11 @@
 const express=require('express');
 var cookieParser = require('cookie-parser')
-const userRouter = require('./routes/auth');
+const cors=require('cors');
 const connectDB=require('./config/database');
 const productRouter = require('./routes/product');
 const adminRouter = require('./routes/admin');
-const cors=require('cors');
+const userRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
 
 
 const app=express();
@@ -23,6 +24,7 @@ app.use(cookieParser())
 app.use("/",userRouter);
 app.use("/",productRouter);
 app.use("/",adminRouter)
+app.use("/",profileRouter)
 
 
 
