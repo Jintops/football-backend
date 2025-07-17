@@ -21,4 +21,15 @@ const validPassword=(req)=>{
     }
 }
 
-module.exports={validProfileEdit,validPassword}
+
+const validProductEdit=(req)=>{
+    const allowedUpdate=[
+        "title","description","price","image","totalStock","brand","salePrice","category"
+    ]
+    const isValidProduct=Object.keys(req.body).every((field)=>{
+        return allowedUpdate.includes(field)
+    })
+    return isValidProduct
+}
+
+module.exports={validProfileEdit,validPassword,validProductEdit}
