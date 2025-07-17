@@ -1,4 +1,5 @@
 const express=require('express');
+require('dotenv').config();
 var cookieParser = require('cookie-parser')
 const cors=require('cors');
 const connectDB=require('./config/database');
@@ -15,7 +16,7 @@ app.use(cors({
     credentials:true
 
 }))
-const PORT=7777
+
 
 
 app.use(express.json()); 
@@ -27,11 +28,9 @@ app.use("/",adminRouter)
 app.use("/",profileRouter)
 
 
-
-
 connectDB().then(()=>{
     console.log("Database connected successfully")
-app.listen(PORT,()=>{
+app.listen(process.env.PORT,()=>{
     console.log("app successfully listening")
 })
 }).catch((err)=>{

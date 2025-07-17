@@ -29,7 +29,7 @@ userRouter.post("/signup", async (req, res) => {
     const data = await newUser.save();
 
 
-    const token = await jwt.sign({ _id: data._id }, "JINTO@123", {
+    const token = await jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
     res.cookie("token", token, {
@@ -65,7 +65,7 @@ userRouter.post("/login", async (req, res) => {
       });
     } else {
       const { password, ...safeUser } = user._doc;
-      const token = await jwt.sign({ _id: user._id }, "JINTO@123", {
+      const token = await jwt.sign({ _id: user._id },process.env.JWT_SECRET , {
         expiresIn: "1h",
       });
       res.cookie("token", token, {

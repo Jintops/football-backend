@@ -9,7 +9,7 @@ const validProfileEdit=(req)=>{
         "photoUrl"
     ];
     const isValidEdit=Object.keys(req.body).every((field)=>{
-        allowedUpdate.includes(field)
+       return allowedUpdate.includes(field)
     })
     return isValidEdit
 }
