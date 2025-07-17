@@ -36,19 +36,24 @@ profileRouter.put("/profile/edit", userAuth, async (req, res) => {
 profileRouter.patch("/profile/editpassword", userAuth, async (req, res) => {
   try {
     validPassword(req)
-    const { oldPassword,newPassword, } = req.body;
+    const { oldPassword,newPassword,confirmPassword } = req.body;
     const user = req.user;
     const isPasswordCorrect=await bcrypt.compare(oldPassword,user.password);
 
      if (!isPasswordCorrect) {
       return res.json({
         success: false,
-        message: "pasword is not correct",
+        message: "oldpassword is not correct",
       });
     }
+    if(newPassword!==confirmPassword){
+        return res.json({
+            success:false,
+            message:"new password is not matching"
+        })
+    }
     const passwordHash = await bcrypt.hash(newPassword, 10);
-    
-   
+      
     await User.findOneAndUpdate({ _id: user._id }, { password: passwordHash });
     res.status(200).json({ success: true, message: "password successfully updated" });
   } catch (err) {
