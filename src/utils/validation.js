@@ -15,8 +15,8 @@ const validProfileEdit=(req)=>{
 }
 
 const validPassword=(req)=>{
-    const {password}=req.body
-    if(!validator.isStrongPassword(password)){
+    const {newPassword}=req.body
+    if(!validator.isStrongPassword(newPassword)){
         throw new Error("Not a strong Password")
     }
 }
