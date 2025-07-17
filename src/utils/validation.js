@@ -14,4 +14,11 @@ const validProfileEdit=(req)=>{
     return isValidEdit
 }
 
-module.exports={validProfileEdit}
+const validPassword=(req)=>{
+    const {password}=req.body
+    if(!validator.isStrongPassword(password)){
+        throw new Error("Not a strong Password")
+    }
+}
+
+module.exports={validProfileEdit,validPassword}
