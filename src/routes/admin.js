@@ -2,6 +2,7 @@ const express=require('express');
 const Product = require('../models/product');
 const { userAuth } = require('../middlewares/auth');
 const { validProductEdit } = require('../utils/validation');
+const { adminAuth } = require('../middlewares/admin');
 const adminRouter=express.Router();
 
 
@@ -27,7 +28,7 @@ adminRouter.post("/addProduct",userAuth,async(req,res)=>{
     }
 });
 
-adminRouter.put("/editProduct/:id",async(req,res)=>{
+adminRouter.put("/editProduct/:id",adminAuth,async(req,res)=>{
     try{
         if(!validProductEdit(req)){
             throw new Error("not valid!")
