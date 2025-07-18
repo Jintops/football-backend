@@ -6,7 +6,7 @@ const { adminAuth } = require('../middlewares/admin');
 const adminRouter=express.Router();
 
 
-adminRouter.post("/addProduct",userAuth,async(req,res)=>{
+adminRouter.post("/addProduct",adminAuth,async(req,res)=>{
     try{
      const {title,image,price,category,description,salePrice,brand,totalStock}=req.body;
 
