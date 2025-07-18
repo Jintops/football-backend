@@ -12,8 +12,8 @@ const userAuth = async (req, res, next) => {
   try {
     const decodedData = await jwt.verify(token,process.env.JWT_SECRET );
     const { _id } = decodedData;
-    const user = await User.findById({ _id: _id });
-    if (!user) {
+    const user = await User.findById( _id );
+    if (!user || user.role!=="user") {
       throw new Error("No User found!");
     }
     req.user = user;

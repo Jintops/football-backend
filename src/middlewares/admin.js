@@ -12,11 +12,8 @@ if(!token){
 const decodedData=await jwt.verify(token,process.env.JWT_SECRET)
 const {_id}=decodedData;
 const user=await User.findById(_id);
- if (!user) {
-      throw new Error("No Admin found!");
-    }
-    if(user.role!=="admin"){
-        throw new Error("No Admin found")
+if (!user || user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Access denied. Admins only." });
     }
     req.user=user;
     next()
@@ -24,7 +21,7 @@ const user=await User.findById(_id);
  }catch(err) {
     return res.status(401).json({
       success: false,
-      message: "unauthorised admin!",
+      message: "Invalid or expired token",
     });
   }
 }
