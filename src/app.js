@@ -7,6 +7,7 @@ const productRouter = require('./routes/product');
 const adminRouter = require('./routes/admin');
 const userRouter = require('./routes/auth');
 const profileRouter = require('./routes/profile');
+const cartRouter = require('./routes/cart');
 
 
 const app=express();
@@ -26,6 +27,7 @@ app.use("/",userRouter);
 app.use("/",productRouter);
 app.use("/",adminRouter)
 app.use("/",profileRouter)
+app.use("/",cartRouter)
 
 
 connectDB().then(()=>{
