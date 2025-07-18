@@ -1,6 +1,5 @@
 const express=require('express');
 const Product = require('../models/product');
-const { userAuth } = require('../middlewares/auth');
 const { validProductEdit } = require('../utils/validation');
 const { adminAuth } = require('../middlewares/admin');
 const adminRouter=express.Router();
@@ -53,7 +52,7 @@ adminRouter.put("/editProduct/:id",adminAuth,async(req,res)=>{
     }
 });
 
-adminRouter.delete("/deleteProduct/:id",async(req,res)=>{
+adminRouter.delete("/deleteProduct/:id",adminAuth,async(req,res)=>{
     try{
     const id=req.params.id
     const deleteProduct=await Product.findByIdAndDelete(id)

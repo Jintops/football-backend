@@ -14,7 +14,10 @@ const userAuth = async (req, res, next) => {
     const { _id } = decodedData;
     const user = await User.findById( _id );
     if (!user || user.role!=="user") {
-      throw new Error("No User found!");
+      return res.status(403).json({
+        success: false,
+        message: "Access denied: Not a valid user",
+      });
     }
     req.user = user;
     next();
