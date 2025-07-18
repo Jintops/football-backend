@@ -2,6 +2,7 @@ const express=require('express');
 const Product = require('../models/product');
 const { validProductEdit } = require('../utils/validation');
 const { adminAuth } = require('../middlewares/admin');
+const User = require('../models/user');
 const adminRouter=express.Router();
 
 
@@ -62,6 +63,28 @@ adminRouter.delete("/deleteProduct/:id",adminAuth,async(req,res)=>{
     res.status(200).json({success:true,message:"product deleted successfully"})
     }catch(err){
         res.status(400).send("ERROR :"+err.message)
+    }
+})
+
+adminRouter.get("/getAllUsers",adminAuth,async(req,res)=>{
+    try{
+        const users=await User.find({});
+        res.status(200).json({success:true,data:users})
+    }catch(err){
+        res.status(400).send("ERROR: "+err.message)
+    }
+});
+
+adminRouter.delete("/deleteUsers/:id",adminAuth,async(req,res)=>{
+    try{
+       const {id}=req.params;
+       const user=await User.findByIdAndDelete(id);
+       if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+       res.status(200).json({success:true,message:"user deleted successfuly"})
+    }catch(err){
+        res.status(400).send("ERROR :" +err.message)
     }
 })
 
