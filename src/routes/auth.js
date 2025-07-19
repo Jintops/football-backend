@@ -6,7 +6,8 @@ const bcrypt = require("bcrypt");
 
 userRouter.post("/signup", async (req, res) => {
   try {
-    const { firstName, emailId, password, phone, gender, lastName, photoUrl } = req.body;
+    const { firstName, emailId, password, phone, gender, lastName, photoUrl } =
+      req.body;
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.findOne({ emailId: emailId });
 
@@ -27,7 +28,6 @@ userRouter.post("/signup", async (req, res) => {
       photoUrl,
     });
     const data = await newUser.save();
-
 
     const token = await jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
@@ -65,7 +65,7 @@ userRouter.post("/login", async (req, res) => {
       });
     } else {
       const { password, ...safeUser } = user._doc;
-      const token = await jwt.sign({ _id: user._id },process.env.JWT_SECRET , {
+      const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
       res.cookie("token", token, {

@@ -21,7 +21,9 @@ productRouter.get("/product/:productId", async (req, res) => {
     const { productId } = req.params;
     const productDetail = await Product.findById(productId);
     if (!productDetail) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
     res.status(200).json({ success: true, data: productDetail });
   } catch (err) {

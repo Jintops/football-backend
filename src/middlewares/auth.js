@@ -10,10 +10,10 @@ const userAuth = async (req, res, next) => {
     });
   }
   try {
-    const decodedData = await jwt.verify(token,process.env.JWT_SECRET );
+    const decodedData = await jwt.verify(token, process.env.JWT_SECRET);
     const { _id } = decodedData;
-    const user = await User.findById( _id );
-    if (!user || user.role!=="user") {
+    const user = await User.findById(_id);
+    if (!user || user.role !== "user") {
       return res.status(403).json({
         success: false,
         message: "Access denied: Not a valid user",

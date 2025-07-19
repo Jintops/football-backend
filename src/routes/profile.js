@@ -20,6 +20,7 @@ profileRouter.put("/profile/edit", userAuth, async (req, res) => {
     if (!validProfileEdit(req)) {
       throw new Error("edit failed!");
     }
+    
     const user = req.user;
 
     Object.keys(req.body).forEach((key) => {
