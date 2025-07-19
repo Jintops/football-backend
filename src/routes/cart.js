@@ -10,9 +10,11 @@ cartRouter.post("/addToCart/:productId", userAuth, async (req, res) => {
     const { productId } = req.params;
 
     const product = await Product.findById(productId);
-if (!product) {
-  return res.status(404).json({ success: false, message: "Product not found" });
-}
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
 
     let cart = await Cart.findOne({ userId: user._id });
     if (!cart) {
@@ -38,13 +40,16 @@ if (!product) {
     }
 
     const item = await cart.save();
-    const populatedCart = await Cart.findById(item._id).populate("items.productId", "title price image salePrice");
+    const populatedCart = await Cart.findById(item._id).populate(
+      "items.productId",
+      "title price image salePrice"
+    );
     res
       .status(200)
       .json({ success: true, message: "added to cart", data: populatedCart });
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
-}); 
+});
 
 module.exports = cartRouter;
