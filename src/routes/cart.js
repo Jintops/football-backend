@@ -56,16 +56,23 @@ cartRouter.post("/addToCart/:productId", userAuth, async (req, res) => {
 cartRouter.get("/cartItems", userAuth, async (req, res) => {
   try {
     const user = req.user;
-    const item = await Cart.findOne({ userId: user._id }).populate(
-      "items.productId"
+    const cart = await Cart.findOne({ userId: user._id }).populate(
+      "items.productId",
+      "title image price salePrice"
     );
-    if (!item) {
+    if (!cart) {
       return res
         .status(404)
         .json({ success: false, message: "no Items found" });
     }
 
-    res.status(200).json({ success: true, data: item });
+    const validItems = cart.items.filter((item) => item.productId);
+    if (validItems.length === 0) {
+  await Cart.findByIdAndDelete(cart._id);
+}
+
+    cart.items = validItems;
+    res.status(200).json({ success: true, data: cart });
   } catch (err) {
     res.status(400).send("ERROR :" + err.message);
   }
@@ -90,12 +97,10 @@ cartRouter.patch("/deleteCartItem/:productId", userAuth, async (req, res) => {
 
     if (updateItem.items.length === 0) {
       await Cart.findByIdAndDelete(updateItem._id);
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "Item removed and cart is now empty. Cart deleted.",
-        });
+      return res.status(200).json({
+        success: true,
+        message: "Item removed and cart is now empty. Cart deleted.",
+      });
     }
 
     res.status(200).json({ success: true, data: updateItem });
@@ -132,20 +137,19 @@ cartRouter.patch("/deleteCartItem/:productId", userAuth, async (req, res) => {
 //   }
 // });
 
-cartRouter.delete("/removeCart",userAuth,async(req,res)=>{
-  try{
-    
-    const user=req.user;
-    const cart=await Cart.findOneAndDelete({userId:user._id})
-   
-    if(!cart){
-      return res.status(404).json({success:false,message:"no items"})
+cartRouter.delete("/removeCart", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    const cart = await Cart.findOneAndDelete({ userId: user._id });
+
+    if (!cart) {
+      return res.status(404).json({ success: false, message: "no items" });
     }
 
-    res.status(200).json({success:true,message:"removed all items"})
-  }catch(err){
-    res.status(400).send("ERROR :"+err.message)
+    res.status(200).json({ success: true, message: "removed all items" });
+  } catch (err) {
+    res.status(400).send("ERROR :" + err.message);
   }
-})
+});
 
 module.exports = cartRouter;
