@@ -52,4 +52,20 @@ cartRouter.post("/addToCart/:productId", userAuth, async (req, res) => {
   }
 });
 
+
+cartRouter.get("/cartItems",userAuth,async(req,res)=>{
+  try{
+    const user=req.user;
+    const item=await Cart.findOne({userId:user._id}).populate("items.productId")
+    if(!item){
+    return  res.status(404).json({success:false,message:"no Items found"})
+    }
+    
+    res.status(200).json({success:true,data:item})
+   
+  }catch(err){
+   res.status(400).send("ERROR :"+err.message)
+  }
+})
+
 module.exports = cartRouter;
