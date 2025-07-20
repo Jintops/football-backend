@@ -2,6 +2,7 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const Cart = require("../models/cart");
 const Product = require("../models/product");
+const product = require("../models/product");
 const cartRouter = express.Router();
 
 cartRouter.post("/addToCart/:productId", userAuth, async (req, res) => {
@@ -52,19 +53,49 @@ cartRouter.post("/addToCart/:productId", userAuth, async (req, res) => {
   }
 });
 
-
-cartRouter.get("/cartItems",userAuth,async(req,res)=>{
-  try{
-    const user=req.user;
-    const item=await Cart.findOne({userId:user._id}).populate("items.productId")
-    if(!item){
-    return  res.status(404).json({success:false,message:"no Items found"})
+cartRouter.get("/cartItems", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    const item = await Cart.findOne({ userId: user._id }).populate(
+      "items.productId"
+    );
+    if (!item) {
+      return res
+        .status(404)
+        .json({ success: false, message: "no Items found" });
     }
-    
-    res.status(200).json({success:true,data:item})
-   
+
+    res.status(200).json({ success: true, data: item });
+  } catch (err) {
+    res.status(400).send("ERROR :" + err.message);
+  }
+});
+
+cartRouter.patch("/deleteCartItem/:productId",userAuth,async(req,res)=>{
+  try{
+ 
+    const user=req.user;
+   const {productId}=req.params;
+
+   const updateItem=await Cart.findOneAndUpdate(
+    {   userId:user._id},
+    { $pull: { items: { productId: productId } }} ,
+     { new:true }
+    ).populate("items.productId");
+
+    if (!updateItem) {
+      return res.status(404).json({ success: false, message: "Cart not found" });
+    }
+
+    if(updateItem.items.length===0){
+      await Cart.findByIdAndDelete(updateItem._id);
+      return res.status(200).json({success:true,message:"empty cart Item"})    
+    }
+
+  
+   res.status(200).json({success:true,data:updateItem})
   }catch(err){
-   res.status(400).send("ERROR :"+err.message)
+    res.status(400).send("ERROR :"+err.message)
   }
 })
 
