@@ -3,6 +3,7 @@ const Product = require("../models/product");
 const { validProductEdit } = require("../utils/validation");
 const { adminAuth } = require("../middlewares/admin");
 const User = require("../models/user");
+const Order = require("../models/order");
 const adminRouter = express.Router();
 
 adminRouter.post("/addProduct", adminAuth, async (req, res) => {
@@ -102,5 +103,7 @@ adminRouter.delete("/deleteUsers/:id", adminAuth, async (req, res) => {
     res.status(400).send("ERROR :" + err.message);
   }
 });
+
+
 
 module.exports = adminRouter;
