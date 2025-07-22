@@ -107,7 +107,7 @@ adminRouter.delete("/deleteUsers/:id", adminAuth, async (req, res) => {
 
 adminRouter.get("/orders",adminAuth,async(req,res)=>{
     try{
-        const orders = await Order.find({}).populate("userId", "firstName emailId").sort({ createdAt: -1 });
+        const orders = await Order.find({isDeleted:false}).populate("userId", "firstName emailId").sort({ createdAt: -1 });
 
         if(orders.length===0){
             return res.status(404).json({success:false,message:"order Not found"})

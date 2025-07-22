@@ -48,7 +48,7 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
 orderRouter.get("/orderList",userAuth,async(req,res)=>{
     try{
     const user=req.user;
-    const order=await Order.find({userId:user._id}).sort({createdAt:-1});
+    const order=await Order.find({userId:user._id,isDeleted:false}).sort({createdAt:-1});
     if(order.length===0){
         return res.status(404).json({success:false,message:"No Orders found!"})
     }
@@ -62,7 +62,7 @@ orderRouter.get("/order/:orderId",userAuth,async(req,res)=>{
     try{
         const user=req.user
         const {orderId}=req.params
-     const order=await Order.findOne({_id:orderId,userId:user._id})
+     const order=await Order.findOne({_id:orderId,userId:user._id,isDeleted:false})
      if(!order){
         return res.status(404).json({success:false,message:"NO order found"})
      }
@@ -73,11 +73,13 @@ orderRouter.get("/order/:orderId",userAuth,async(req,res)=>{
     }
 });
 
-orderRouter.delete("/deleteOrder/:orderId",userAuth,async(req,res)=>{
+orderRouter.patch("/deleteOrder/:orderId",userAuth,async(req,res)=>{
     try{
         const {orderId}=req.params;
         const user=req.user;
-        const order=await Order.findOneAndDelete({_id:orderId,userId:user._id})
+        const order=await Order.findOneAndUpdate({_id:orderId,userId:user._id,isDeleted:false},
+            {isDeleted:true},
+        {new:true})
         if(!order){
             return res.status(404).json({success:false,message:"No Order found"})
         }
