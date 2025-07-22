@@ -71,6 +71,21 @@ orderRouter.get("/order/:orderId",userAuth,async(req,res)=>{
     }catch(err){
         res.status(400).send("ERROR :"+err.message)
     }
+});
+
+orderRouter.delete("/deleteOrder/:orderId",userAuth,async(req,res)=>{
+    try{
+        const {orderId}=req.params;
+        const user=req.user;
+        const order=await Order.findOneAndDelete({_id:orderId,userId:user._id})
+        if(!order){
+            return res.status(404).json({success:false,message:"No Order found"})
+        }
+        res.status(200).json({success:true,message:"Order successfully deleted",data:order})
+
+    }catch(err){
+        res.status(400).send("ERROR :"+err.message)
+    }
 })
 
 module.exports=orderRouter;
