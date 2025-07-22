@@ -60,8 +60,9 @@ orderRouter.get("/orderList",userAuth,async(req,res)=>{
 
 orderRouter.get("/order/:orderId",userAuth,async(req,res)=>{
     try{
+        const user=req.user
         const {orderId}=req.params
-     const order=await Order.findById(orderId)
+     const order=await Order.findOne({_id:orderId,userId:user._id})
      if(!order){
         return res.status(404).json({success:false,message:"NO order found"})
      }
