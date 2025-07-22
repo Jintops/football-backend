@@ -45,7 +45,7 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
 });
 
 
-orderRouter.get("/orderDetail",userAuth,async(req,res)=>{
+orderRouter.get("/orderList",userAuth,async(req,res)=>{
     try{
     const user=req.user;
     const order=await Order.find({userId:user._id}).sort({createdAt:-1});
@@ -53,6 +53,20 @@ orderRouter.get("/orderDetail",userAuth,async(req,res)=>{
         return res.status(404).json({success:false,message:"No Orders found!"})
     }
     res.status(200).json({success:true,data:order})
+    }catch(err){
+        res.status(400).send("ERROR :"+err.message)
+    }
+})
+
+orderRouter.get("/order/:orderId",userAuth,async(req,res)=>{
+    try{
+        const {orderId}=req.params
+     const order=await Order.findById(orderId)
+     if(!order){
+        return res.status(404).json({success:false,message:"NO order found"})
+     }
+
+     res.status(200).json({success:true,data:order})
     }catch(err){
         res.status(400).send("ERROR :"+err.message)
     }
