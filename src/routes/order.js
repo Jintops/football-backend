@@ -42,6 +42,20 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
     }catch(err){
         res.status(400).send("ERROR :"+err.message)
     }
+});
+
+
+orderRouter.get("/orderDetail",userAuth,async(req,res)=>{
+    try{
+    const user=req.user;
+    const order=await Order.find({userId:user._id}).sort({createdAt:-1});
+    if(order.length===0){
+        return res.status(404).json({success:false,message:"No Orders found!"})
+    }
+    res.status(200).json({success:true,data:order})
+    }catch(err){
+        res.status(400).send("ERROR :"+err.message)
+    }
 })
 
 module.exports=orderRouter;
