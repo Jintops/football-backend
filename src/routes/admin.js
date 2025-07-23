@@ -8,12 +8,7 @@ const adminRouter = express.Router();
 const { upload, imageUploadUtil } = require("../utils/cloudinary");
 
 
-
-adminRouter.post(
-  "/addProduct",
-  adminAuth,
-  upload.single("image"), // Handle single image file
-  async (req, res) => {
+adminRouter.post("/addProduct",adminAuth,upload.single("image"),async (req, res) => {
     try {
       const {
         title,
