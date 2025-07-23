@@ -7,8 +7,11 @@ const Order = require("../models/order");
 const adminRouter = express.Router();
 const { upload, imageUploadUtil } = require("../utils/cloudinary");
 
-
-adminRouter.post("/addProduct",adminAuth,upload.single("image"),async (req, res) => {
+adminRouter.post(
+  "/addProduct",
+  adminAuth,
+  upload.single("image"),
+  async (req, res) => {
     try {
       const {
         title,
@@ -28,8 +31,7 @@ adminRouter.post("/addProduct",adminAuth,upload.single("image"),async (req, res)
           .json({ success: false, message: "Product image is required" });
       }
 
-      // Upload to Cloudinary
-      const result = await imageUploadUtil(file);
+      const result = await imageUploadUtil(file); // Upload to Cloudinary
 
       const product = new Product({
         title,
@@ -49,7 +51,6 @@ adminRouter.post("/addProduct",adminAuth,upload.single("image"),async (req, res)
     }
   }
 );
-
 
 adminRouter.put("/editProduct/:id", adminAuth, async (req, res) => {
   try {
@@ -118,21 +119,23 @@ adminRouter.delete("/deleteUsers/:id", adminAuth, async (req, res) => {
   }
 });
 
+adminRouter.get("/orders", adminAuth, async (req, res) => {
+  try {
+    const orders = await Order.find({ isDeleted: false })
+      .populate("userId", "firstName emailId")
+      .sort({ createdAt: -1 });
 
-adminRouter.get("/orders",adminAuth,async(req,res)=>{
-    try{
-        const orders = await Order.find({isDeleted:false}).populate("userId", "firstName emailId").sort({ createdAt: -1 });
-
-        if(orders.length===0){
-            return res.status(404).json({success:false,message:"order Not found"})
-        }
-        res.status(200).json({success:true,message:"ordered items",data:orders})
-
-    }catch(err){
-        res.status(400).send("ERROR :"+err.message)
+    if (orders.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "order Not found" });
     }
+    res
+      .status(200)
+      .json({ success: true, message: "ordered items", data: orders });
+  } catch (err) {
+    res.status(400).send("ERROR :" + err.message);
+  }
 });
-
-
 
 module.exports = adminRouter;
