@@ -23,19 +23,17 @@ adminRouter.post(
         totalStock,
       } = req.body;
 
-      const file = req.file;
+     let imageUrl = null;
 
-      if (!file) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Product image is required" });
+      // Only upload to Cloudinary if an image file is provided
+      if (req.file) {
+        const result = await imageUploadUtil(req.file);
+        imageUrl = result.secure_url;
       }
-
-      const result = await imageUploadUtil(file); // Upload to Cloudinary
 
       const product = new Product({
         title,
-        image: result.secure_url, // Save Cloudinary image URL
+        image: imageUrl, // Save Cloudinary image URL
         price,
         category,
         description,
@@ -137,5 +135,7 @@ adminRouter.get("/orders", adminAuth, async (req, res) => {
     res.status(400).send("ERROR :" + err.message);
   }
 });
+
+
 
 module.exports = adminRouter;
