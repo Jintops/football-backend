@@ -5,37 +5,56 @@ const { adminAuth } = require("../middlewares/admin");
 const User = require("../models/user");
 const Order = require("../models/order");
 const adminRouter = express.Router();
+const { upload, imageUploadUtil } = require("../utils/cloudinary");
 
-adminRouter.post("/addProduct", adminAuth, async (req, res) => {
-  try {
-    const {
-      title,
-      image,
-      price,
-      category,
-      description,
-      salePrice,
-      brand,
-      totalStock,
-    } = req.body;
 
-    const product = new Product({
-      title,
-      image,
-      price,
-      category,
-      description,
-      salePrice,
-      brand,
-      totalStock,
-    });
 
-    const data = await product.save();
-    res.status(200).json({ success: true, data: data });
-  } catch (err) {
-    res.status(400).send("ERROR : " + err.message);
+adminRouter.post(
+  "/addProduct",
+  adminAuth,
+  upload.single("image"), // Handle single image file
+  async (req, res) => {
+    try {
+      const {
+        title,
+        price,
+        category,
+        description,
+        salePrice,
+        brand,
+        totalStock,
+      } = req.body;
+
+      const file = req.file;
+
+      if (!file) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Product image is required" });
+      }
+
+      // Upload to Cloudinary
+      const result = await imageUploadUtil(file);
+
+      const product = new Product({
+        title,
+        image: result.secure_url, // Save Cloudinary image URL
+        price,
+        category,
+        description,
+        salePrice,
+        brand,
+        totalStock,
+      });
+
+      const data = await product.save();
+      res.status(200).json({ success: true, data });
+    } catch (err) {
+      res.status(400).send("ERROR : " + err.message);
+    }
   }
-});
+);
+
 
 adminRouter.put("/editProduct/:id", adminAuth, async (req, res) => {
   try {
