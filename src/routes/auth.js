@@ -3,10 +3,12 @@ const User = require("../models/user");
 const userRouter = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { upload, imageUploadUtil } = require("../utils/cloudinary");
 
-userRouter.post("/signup", async (req, res) => {
+
+userRouter.post("/signup",upload.single("image"), async (req, res) => {
   try {
-    const { firstName, emailId, password, phone, gender, lastName, photoUrl } =
+    const { firstName, emailId, password, phone, gender, lastName } =
       req.body;
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.findOne({ emailId: emailId });
@@ -18,6 +20,13 @@ userRouter.post("/signup", async (req, res) => {
       });
     }
 
+    let imageUrl = "https://png.pngtree.com/png-clipart/20230823/original/pngtree-user-avatar-icon-profile-silhouette-picture-image_8204639.png";
+    if(req.file){
+      const result=await imageUploadUtil(req.file)
+      imageUrl=result.secure_url
+
+    }
+
     const newUser = new User({
       firstName,
       emailId,
@@ -25,7 +34,7 @@ userRouter.post("/signup", async (req, res) => {
       phone,
       gender,
       lastName,
-      photoUrl,
+      photoUrl:imageUrl
     });
     const data = await newUser.save();
 
