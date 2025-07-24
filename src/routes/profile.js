@@ -8,10 +8,15 @@ const bcrypt=require('bcrypt')
 profileRouter.get("/profile", userAuth, async (req, res) => {
   try {
     const user = req.user;
+    if (!user) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+}
+
     const { password, ...safeUser } = user._doc;
     res.status(200).json({ success: true, data: safeUser });
   } catch (err) {
-    res.status(400).send("ERROR : " + err.message);
+   res.status(400).json({ success: false, message: err.message });
+
   }
 });
 
@@ -20,7 +25,7 @@ profileRouter.put("/profile/edit", userAuth, async (req, res) => {
     if (!validProfileEdit(req)) {
       throw new Error("edit failed!");
     }
-    
+
     const user = req.user;
 
     Object.keys(req.body).forEach((key) => {
