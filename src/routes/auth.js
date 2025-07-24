@@ -6,8 +6,7 @@ const bcrypt = require("bcrypt");
 const { upload, imageUploadUtil } = require("../utils/cloudinary");
 const { PROFILE_URL } = require("../utils/constants");
 
-
-userRouter.post("/signup",upload.single("image"), async (req, res) => {
+userRouter.post("/signup", upload.single("image"), async (req, res) => {
   try {
     const { firstName, emailId, password, phone, gender, lastName } = req.body;
     const passwordHash = await bcrypt.hash(password, 10);
@@ -20,11 +19,10 @@ userRouter.post("/signup",upload.single("image"), async (req, res) => {
       });
     }
 
-    let imageUrl =PROFILE_URL;
-    if(req.file){
-      const result=await imageUploadUtil(req.file)
-      imageUrl=result.secure_url
-
+    let imageUrl = PROFILE_URL;
+    if (req.file) {
+      const result = await imageUploadUtil(req.file);
+      imageUrl = result.secure_url;
     }
 
     const newUser = new User({
@@ -34,7 +32,7 @@ userRouter.post("/signup",upload.single("image"), async (req, res) => {
       phone,
       gender,
       lastName,
-      photoUrl:imageUrl
+      photoUrl: imageUrl,
     });
     const data = await newUser.save();
 
@@ -50,13 +48,18 @@ userRouter.post("/signup",upload.single("image"), async (req, res) => {
 
     res.json({ success: true, message: "user data successfully saved", data });
   } catch (err) {
-    res.status(400).send("ERROR :" + err.message);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
 userRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
+    if (!emailId || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and password are required" });
+    }
 
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
@@ -71,7 +74,7 @@ userRouter.post("/login", async (req, res) => {
     if (!isValidPassword) {
       return res.json({
         success: false,
-        message: "pasword is not correct",
+        message: "password is not correct",
       });
     } else {
       const { password, ...safeUser } = user._doc;
@@ -86,7 +89,7 @@ userRouter.post("/login", async (req, res) => {
       res.json({ success: true, message: "login success", user: safeUser });
     }
   } catch (err) {
-    res.status(400).send("ERROR" + err.message);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
