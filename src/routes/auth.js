@@ -4,23 +4,23 @@ const userRouter = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { upload, imageUploadUtil } = require("../utils/cloudinary");
+const { PROFILE_URL } = require("../utils/constants");
 
 
 userRouter.post("/signup",upload.single("image"), async (req, res) => {
   try {
-    const { firstName, emailId, password, phone, gender, lastName } =
-      req.body;
+    const { firstName, emailId, password, phone, gender, lastName } = req.body;
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.findOne({ emailId: emailId });
 
     if (user) {
-      return res.json({
+      return res.status(409).json({
         success: false,
-        message: "User Already exists with the same email! Please try again",
+        message: "User Already exists with the same email!",
       });
     }
 
-    let imageUrl = "https://png.pngtree.com/png-clipart/20230823/original/pngtree-user-avatar-icon-profile-silhouette-picture-image_8204639.png";
+    let imageUrl =PROFILE_URL;
     if(req.file){
       const result=await imageUploadUtil(req.file)
       imageUrl=result.secure_url
@@ -41,6 +41,7 @@ userRouter.post("/signup",upload.single("image"), async (req, res) => {
     const token = await jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
