@@ -63,7 +63,7 @@ cartRouter.get("/cartItems", userAuth, async (req, res) => {
     if (!cart) {
       return res
         .status(404)
-        .json({ success: false, message: "no Items found" });
+        .json({ success: false, message: "No Items found"});
     }
 
     const validItems = cart.items.filter((item) => item.productId);
@@ -141,6 +141,8 @@ cartRouter.patch("/deleteCartItem/:productId", userAuth, async (req, res) => {
 //     res.status(400).send("ERROR: " + err.message);
 //   }
 // });
+
+
 
 cartRouter.delete("/removeCart", userAuth, async (req, res) => {
   try {
