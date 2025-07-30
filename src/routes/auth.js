@@ -5,10 +5,20 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { upload, imageUploadUtil } = require("../utils/cloudinary");
 const { PROFILE_URL } = require("../utils/constants");
+const validator=require('validator')
+
 
 userRouter.post("/signup", upload.single("image"), async (req, res) => {
   try {
     const { firstName, emailId, password, phone, gender, lastName } = req.body;
+
+       if (!validator.isStrongPassword(password)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Password must be strong. Use at least 8 characters, including a number, uppercase, lowercase, and a special symbol.",
+      });
+    }
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.findOne({ emailId: emailId });
 
@@ -63,7 +73,7 @@ userRouter.post("/login", async (req, res) => {
 
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
-      return res.json({
+      return res.status(404).json({
         success: false,
         message: "User not  found",
       });
@@ -72,7 +82,7 @@ userRouter.post("/login", async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: "password is not correct",
       });

@@ -93,14 +93,14 @@ adminRouter.delete("/deleteProduct/:id", adminAuth, async (req, res) => {
 
 adminRouter.get("/getAllUsers", adminAuth, async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({role:"user"});
     res.status(200).json({ success: true, data: users });
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
 });
 
-adminRouter.delete("/deleteUsers/:id", adminAuth, async (req, res) => {
+adminRouter.delete("/deleteUser/:id", adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndDelete(id);
