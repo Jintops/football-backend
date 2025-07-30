@@ -17,6 +17,7 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
            return res.status(404).json({success:false,message:"NO Product found!"})
         }
       
+        
         const cartItems=[
             {
                 productId:product._id,
