@@ -24,7 +24,7 @@ const validPassword=(req)=>{
 
 const validProductEdit=(req)=>{
     const allowedUpdate=[
-        "title","description","price","image","totalStock","brand","salePrice","category"
+        "title","description","price","image","totalStock","brand","salePrice","category","image"
     ]
     const isValidProduct=Object.keys(req.body).every((field)=>{
         return allowedUpdate.includes(field)
