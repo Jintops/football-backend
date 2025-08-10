@@ -68,7 +68,7 @@ cartRouter.get("/cartItems", userAuth, async (req, res) => {
 
     const validItems = cart.items.filter((item) => item.productId);
     if (validItems.length === 0) {
-  await Cart.findByIdAndDelete(cart._id);
+  await Cart.findByIdAndDelete(cart._id);a
   return res.status(200).json({
     success: true,
     message: "Cart is empty and deleted.",

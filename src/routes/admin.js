@@ -23,7 +23,7 @@ adminRouter.post(
         totalStock,
       } = req.body;
 
-     let imageUrl = null;
+      let imageUrl = null;
 
       // Only upload to Cloudinary if an image file is provided
       if (req.file) {
@@ -53,7 +53,7 @@ adminRouter.post(
 adminRouter.put(
   "/editProduct/:id",
   adminAuth,
-  upload.single("image"), // 🟢 This enables image processing
+  upload.single("image"),
   async (req, res) => {
     try {
       if (!validProductEdit(req)) {
@@ -69,9 +69,17 @@ adminRouter.put(
           .json({ success: false, message: "product not found" });
       }
 
-      const { title, price, category, description, salePrice, brand, totalStock } = req.body;
+      const {
+        title,
+        price,
+        category,
+        description,
+        salePrice,
+        brand,
+        totalStock,
+      } = req.body;
 
-      // Update text fields
+     
       if (title) product.title = title;
       if (price) product.price = price;
       if (category) product.category = category;
@@ -80,7 +88,7 @@ adminRouter.put(
       if (brand) product.brand = brand;
       if (totalStock) product.totalStock = totalStock;
 
-      // 🖼️ Handle image upload if a new file is sent
+      
       if (req.file) {
         const result = await imageUploadUtil(req.file);
         product.image = result.secure_url;
@@ -91,14 +99,13 @@ adminRouter.put(
       res.status(200).json({
         success: true,
         message: "product details updated",
-        data: product, // send back updated data if needed
+        data: product, 
       });
     } catch (err) {
       res.status(400).send("ERROR :" + err.message);
     }
   }
 );
-
 
 adminRouter.delete("/deleteProduct/:id", adminAuth, async (req, res) => {
   try {
@@ -117,7 +124,7 @@ adminRouter.delete("/deleteProduct/:id", adminAuth, async (req, res) => {
 
 adminRouter.get("/getAllUsers", adminAuth, async (req, res) => {
   try {
-    const users = await User.find({role:"user"});
+    const users = await User.find({ role: "user" });
     res.status(200).json({ success: true, data: users });
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
@@ -159,7 +166,5 @@ adminRouter.get("/orders", adminAuth, async (req, res) => {
     res.status(400).send("ERROR :" + err.message);
   }
 });
-
-
 
 module.exports = adminRouter;
