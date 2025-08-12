@@ -89,9 +89,15 @@ cartRouter.put('/cartEdit/:productId',userAuth,async(req,res)=>{
 
     const user=req.user;
     const {productId}=req.params;
+    const quantity=req.body
+
     const updateItem=await Cart.findOneAndUpdate({
       userId:user._id
-    })
+    },{productId:productId})
+ 
+     updateItem.items.quantity=quantity
+    await cart.save()
+    res.status(200).json({success:true,message:"cart Quantity updated"})
 
   }catch(err){
     res.status(400).send("ERROR" +err.message)
