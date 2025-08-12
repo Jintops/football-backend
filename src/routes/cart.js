@@ -83,6 +83,23 @@ cartRouter.get("/cartItems", userAuth, async (req, res) => {
   }
 });
 
+
+cartRouter.put('/cartEdit/:productId',userAuth,async(req,res)=>{
+  try{
+
+    const user=req.user;
+    const {productId}=req.params;
+    const updateItem=await Cart.findOneAndUpdate({
+      userId:user._id
+    })
+
+  }catch(err){
+    res.status(400).send("ERROR" +err.message)
+  }
+})
+
+
+
 cartRouter.patch("/deleteCartItem/:productId", userAuth, async (req, res) => {
   try {
     const user = req.user;
