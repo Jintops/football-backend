@@ -95,16 +95,22 @@ cartRouter.put('/cartEdit/:productId',userAuth,async(req,res)=>{
     
     const cart=await Cart.findOne({
       userId:user._id
-    },)
+    })
+
+    if(!cart){
+      return res.status(404).json({ success: false, message: "Cart not found" });
+    }
 
      const findCurrentProductIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId
     );
+      if (findCurrentProductIndex === -1) {
+      return res.status(404).json({ success: false, message: "Product not found in cart" });
+    }
 
  cart.items[findCurrentProductIndex].quantity = quantity;
     await cart.save();
     res.status(200).json({success:true,message:"cart Quantity updated"})
-
 
   }catch(err){
     res.status(400).send("ERROR" +err.message)
