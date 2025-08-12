@@ -84,25 +84,33 @@ cartRouter.get("/cartItems", userAuth, async (req, res) => {
 });
 
 
+
 cartRouter.put('/cartEdit/:productId',userAuth,async(req,res)=>{
   try{
 
     const user=req.user;
     const {productId}=req.params;
-    const quantity=req.body
+    const {quantity}=req.body
 
-    const updateItem=await Cart.findOneAndUpdate({
+    
+    const cart=await Cart.findOne({
       userId:user._id
-    },{productId:productId})
- 
-     updateItem.items.quantity=quantity
-    await cart.save()
+    },)
+
+     const findCurrentProductIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+
+ cart.items[findCurrentProductIndex].quantity = quantity;
+    await cart.save();
     res.status(200).json({success:true,message:"cart Quantity updated"})
+
 
   }catch(err){
     res.status(400).send("ERROR" +err.message)
   }
 })
+
 
 
 
