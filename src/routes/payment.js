@@ -16,6 +16,7 @@ paymentRouter.post("/payment/create",userAuth,async(req,res)=>{
     "lastName": "value2"
   }
 })
+res.json({order})
 
     }catch(err){
         res.status(400).send("ERROR"+err.message)
