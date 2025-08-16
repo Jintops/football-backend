@@ -45,7 +45,10 @@ const orderSchema = new mongoose.Schema(
     },
     orderId:{
       type:String,
-    }
+    },
+     paymentStatus:{
+     type:String
+    },
   },
   { timestamps: true }
 );
