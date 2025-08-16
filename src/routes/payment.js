@@ -9,7 +9,9 @@ paymentRouter.post("/payment/create",userAuth,async(req,res)=>{
     try{
      const {firstName,lastName}=req.user
 
-     
+
+const {productId,address,paymentMethod,quantity ,totalAmount}=req.body;
+
      const order=await razorpayInstance.orders.create({
    "amount": totalAmount,
    "currency": "INR",
@@ -20,7 +22,6 @@ paymentRouter.post("/payment/create",userAuth,async(req,res)=>{
   }
 })
 
-const {productId,address,paymentMethod,quantity ,totalAmount}=req.body;
 
 const product=await Product.findById(productId)
 
