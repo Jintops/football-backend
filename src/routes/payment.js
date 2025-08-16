@@ -7,14 +7,16 @@ const Product = require('../models/product');
 
 paymentRouter.post("/payment/create",userAuth,async(req,res)=>{
     try{
+     const {firstName,lastName}=req.user
 
+     
      const order=await razorpayInstance.orders.create({
-  "amount": 50000,
-  "currency": "INR",
-  "receipt": "receipt#1",
+   "amount": totalAmount,
+   "currency": "INR",
+   "receipt": "receipt#1",
   "notes": {
-    "firstName": "value3",
-    "lastName": "value2"
+    firstName,
+    lastName
   }
 })
 
