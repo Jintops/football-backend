@@ -52,7 +52,7 @@ const payment=new Order({
 
 const savedPayment=await payment.save();
 
-res.json({savedPayment})
+res.json({savedPayment,keyId:process.env.RAZORPAY_KEY_ID})
     }catch(err){
         res.status(400).send("ERROR"+err.message)
     }
