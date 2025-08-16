@@ -4,11 +4,12 @@ const paymentRouter=express.Router();
 const razorpayInstance=require('../utils/razorpay')
 const Order=require('../models/order');
 const Product = require('../models/product');
+const {validateWebhookSignature} = require('razorpay/dist/utils/razorpay-utils')
+
 
 paymentRouter.post("/payment/create",userAuth,async(req,res)=>{
     try{
      const {firstName,lastName}=req.user
-
 
 const {productId,address,paymentMethod,quantity ,totalAmount}=req.body;
 
@@ -52,9 +53,23 @@ const payment=new Order({
 
 const savedPayment=await payment.save();
 
-res.json({savedPayment,keyId:process.env.RAZORPAY_KEY_ID})
+res.json({savedPayment, keyId:process.env.RAZORPAY_KEY_ID})
     }catch(err){
         res.status(400).send("ERROR"+err.message)
+    }
+})
+
+paymentRouter.post("/payment/webhook",async(req,res)=>{
+    try{
+ 
+      const webhookSignature=req.get['X-Razorpay-Signature']
+   const isWebhookValid=validateWebhookSignature(
+    JSON.stringify(req.body)
+    , webhookSignature,
+    process.env.WEBHOOK_SECRET)
+
+    }catch(err){
+        res.status(500).send("ERROR"+err.message)
     }
 })
 
