@@ -10,7 +10,7 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
     try{
 
         const user=req.user;
-        const{address,paymentMethod,productId,quantity,totalAmount}=req.body;
+        const {address,paymentMethod,productId,quantity,totalAmount}=req.body;
 
         const product=await Product.findById(productId);
         if(!product){

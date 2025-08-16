@@ -21,7 +21,7 @@ const orderSchema = new mongoose.Schema(
     ],
     address: {
       name: { type: String, required: true },
-      fullAddress: { type: String, required: true },
+      fullAddress: { type: String,},
       pincode: { type: Number, required: true },
       place: { type: String, required: true },
       phone: { type: String, required: true },
@@ -42,6 +42,9 @@ const orderSchema = new mongoose.Schema(
     isDeleted:{
         type:Boolean,
         default:false,
+    },
+    orderId:{
+      type:String,
     }
   },
   { timestamps: true }
