@@ -11,7 +11,7 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
 
         const user=req.user;
         const {address,paymentMethod,productId,quantity,totalAmount}=req.body;
-
+    
         const product=await Product.findById(productId);
         if(!product){
            return res.status(404).json({success:false,message:"NO Product found!"})
@@ -33,7 +33,7 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
             cartItems,
             address,
             paymentMethod,
-            totalAmount
+            totalAmount:totalAmount/100
 
         })
 
@@ -91,5 +91,7 @@ orderRouter.patch("/deleteOrder/:orderId",userAuth,async(req,res)=>{
         res.status(400).send("ERROR :"+err.message)
     }
 })
+
+
 
 module.exports=orderRouter;

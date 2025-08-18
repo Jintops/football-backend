@@ -167,4 +167,19 @@ adminRouter.get("/orders", adminAuth, async (req, res) => {
   }
 });
 
+
+adminRouter.patch("/orderStatus/:orderId",adminAuth,async(req,res)=>{
+  try{
+     const {orderId}=req.params;
+     const {status}=req.body
+     const order=await Order.findByIdAndUpdate(orderId,{orderStatus:status},{new:true})
+     if(!order){
+      res.status(404).json({success:false,message:"No order found"})
+    }
+    res.status(200).json({success:true,message:"Status Updated",order})
+  }catch(err){
+    res.status(400).send("ERROR :"+err.message)
+  }
+})
+
 module.exports = adminRouter;

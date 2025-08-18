@@ -50,7 +50,7 @@ const payment=new Order({
  paymentStatus:order.status,
  address,
  paymentMethod,
- totalAmount
+ totalAmount:totalAmount/100
 
 })
 
