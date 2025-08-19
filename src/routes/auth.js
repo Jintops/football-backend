@@ -25,7 +25,7 @@ userRouter.post("/signup", upload.single("image"), async (req, res) => {
     if (user) {
       return res.status(409).json({
         success: false,
-        message: "User Already exists with the same email!",
+        message: "User Already exists with the same email ",
       });
     }
 
@@ -75,7 +75,7 @@ userRouter.post("/login", async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not  found",
+        message: "Email not found",
       });
     }
 
@@ -84,7 +84,7 @@ userRouter.post("/login", async (req, res) => {
     if (!isValidPassword) {
       return res.status(400).json({
         success: false,
-        message: "password is not correct",
+        message: "Password is wrong",
       });
     } else {
       const { password, ...safeUser } = user._doc;
