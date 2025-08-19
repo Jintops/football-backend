@@ -124,7 +124,7 @@ adminRouter.delete("/deleteProduct/:id", adminAuth, async (req, res) => {
 
 adminRouter.get("/getAllUsers", adminAuth, async (req, res) => {
   try {
-    const users = await User.find({ role: "user" });
+    const users = await User.find({ role: "user" }).sort({createdAt:-1});
     res.status(200).json({ success: true, data: users });
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
