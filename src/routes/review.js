@@ -24,7 +24,8 @@ reviewRouter.post("/addReview",userAuth,async(req,res)=>{
             firstName:user.firstName,
             reviewMessage,
             rating,
-            likesCount:0
+            likesCount:0,
+            dislikesCount:0,
         })
      
 const data=await review.save();
@@ -36,9 +37,9 @@ res.status(200).json({success:true,data:data})
 })
 
 
-reviewRouter.get("/getReview",async(req,res)=>{
+reviewRouter.get("/getReviews/:productId",async(req,res)=>{
     try{
-        const {productId}=req.query
+        const {productId}=req.params
 
         if(!productId){
             return res.status(404).json({success:false,message:"ProductId is required"}) 

@@ -25,7 +25,10 @@ const reviewSchema=new mongoose.Schema({
  },
  likesCount:{
     type:Number
- }
+ },
+ dislikesCount:{
+    type:Number
+ },
 
 },{timestamps:true})
 
