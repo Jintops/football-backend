@@ -24,16 +24,29 @@ reviewRouter.post("/addReview",userAuth,async(req,res)=>{
             firstName:user.firstName,
             reviewMessage,
             rating,
-            likesCount
+            likesCount:0
         })
-
-        
+     
 const data=await review.save();
 res.status(200).json({success:true,data:data})
      
-
     }catch(err){
-        res.status(400).send("ERROR :"+err.message)
+        res.status(500).send("ERROR :"+err.message)
+    }
+})
+
+
+reviewRouter.get("/getReview",async(req,res)=>{
+    try{
+        const {productId}=req.body
+        const review=await Review.find({productId:productId})
+        if(review.length===0){
+            return res.status(404).json({success:false,message:"No review Availabel for this Product"})
+        }
+
+        res.status(200).json({success:true,data:review})
+    }catch(err){
+        res.status(500).send("ERROR :"+err.message)
     }
 })
 
