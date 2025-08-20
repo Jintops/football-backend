@@ -38,13 +38,17 @@ res.status(200).json({success:true,data:data})
 
 reviewRouter.get("/getReview",async(req,res)=>{
     try{
-        const {productId}=req.body
-        const review=await Review.find({productId:productId})
-        if(review.length===0){
+        const {productId}=req.query
+
+        if(!productId){
+            return res.status(404).json({success:false,message:"ProductId is required"}) 
+        }
+        const reviews=await Review.find({productId:productId})
+        if(!reviews || reviews.length===0){
             return res.status(404).json({success:false,message:"No review Availabel for this Product"})
         }
 
-        res.status(200).json({success:true,data:review})
+        res.status(200).json({success:true,data:reviews})
     }catch(err){
         res.status(500).send("ERROR :"+err.message)
     }
