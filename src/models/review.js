@@ -11,12 +11,19 @@ const reviewSchema=new mongoose.Schema({
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
     required:true,
-
+ },
+ firstName:{
+    type:String,
+    required:true,
  },
  reviewMessage:{
     type:String,
  },
- reviewValue:{
+ rating:{
+    type:Number,
+    required:true
+ },
+ likesCount:{
     type:Number
  }
 
