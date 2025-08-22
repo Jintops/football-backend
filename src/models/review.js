@@ -23,12 +23,14 @@ const reviewSchema=new mongoose.Schema({
     type:Number,
     required:true
  },
- likesCount:{
-    type:Number
- },
- dislikesCount:{
-    type:Number
- },
+ likes: [{
+     type: mongoose.Schema.Types.ObjectId,
+     ref: "User" 
+    }],   
+ dislikes: [{
+     type: mongoose.Schema.Types.ObjectId,
+         ref: "User" 
+        }],
 
 },{timestamps:true})
 

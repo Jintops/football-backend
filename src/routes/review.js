@@ -60,12 +60,14 @@ reviewRouter.patch("/likes/:reviewId",userAuth,async(req,res)=>{
       const user=req.user;
       const {likes,dislikes}=req.body
      const review=await Review.findByIdAndUpdate({_id:reviewId},{likesCount:likes,dislikesCount:dislikes},
-        {new:save}
+        {new:true}
      )
     
      if(!review){
         return res.status(404).json({success:false,message:"Review not found"})
      }
+
+     res.status(200).json({success:true,message:"updated"})
 
     }catch(err){
         res.status(500).send("ERROR :"+err.message)
