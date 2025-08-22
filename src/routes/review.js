@@ -58,15 +58,29 @@ reviewRouter.patch("/likes/:reviewId",userAuth,async(req,res)=>{
     try{
       const {reviewId}=req.params;
       const user=req.user;
-      const {likes,dislikes}=req.body
-     const review=await Review.findByIdAndUpdate({_id:reviewId},{likesCount:likes,dislikesCount:dislikes},
-        {new:true}
-     )
+      const {action}=req.body
+     const review=await Review.findById(reviewId)
     
      if(!review){
         return res.status(404).json({success:false,message:"Review not found"})
      }
 
+     if(action==="likes"){
+        review.dislikes=review.dislikes.filter(id=>id.toString()!==user._id.toString())
+
+        if(!review.likes.includes(user._id)){
+            review.likes.push(user._id)
+        }
+     }
+      else if(action==="dislikes"){
+        review.likes=review.likes.filter(id=>id.toString()!==user._id.toString())
+
+        if(!review.dislikes.includes(user._id)){
+            review.dislikes.push(user._id)
+        }
+     }
+
+    await review.save();
      res.status(200).json({success:true,message:"updated"})
 
     }catch(err){
