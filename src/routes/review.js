@@ -68,16 +68,22 @@ reviewRouter.patch("/likes/:reviewId",userAuth,async(req,res)=>{
      if(action==="likes"){
         review.dislikes=review.dislikes.filter(id=>id.toString()!==user._id.toString())
 
-        if(!review.likes.includes(user._id)){
-            review.likes.push(user._id)
-        }
+        if (review.likes.includes(user._id)) {
+    review.likes = review.likes.filter(id => id.toString() !== user._id.toString()); // toggle off
+  } else {
+    review.likes.push(user._id);
+  }
+
      }
       else if(action==="dislikes"){
         review.likes=review.likes.filter(id=>id.toString()!==user._id.toString())
 
-        if(!review.dislikes.includes(user._id)){
-            review.dislikes.push(user._id)
-        }
+        if (review.dislikes.includes(user._id)) {
+    review.dislikes = review.dislikes.filter(id => id.toString() !== user._id.toString()); // toggle off
+  } else {
+    review.dislikes.push(user._id);
+  }
+
      }
 
     await review.save();
