@@ -81,7 +81,8 @@ reviewRouter.patch("/likes/:reviewId",userAuth,async(req,res)=>{
      }
 
     await review.save();
-     res.status(200).json({success:true,message:"updated"})
+     res.status(200).json({success:true,message:"updated", likesCount: review.likes.length,
+  dislikesCount: review.dislikes.length,})
 
     }catch(err){
         res.status(500).send("ERROR :"+err.message)
