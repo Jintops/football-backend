@@ -47,13 +47,13 @@ userRouter.post("/signup", upload.single("image"), async (req, res) => {
     const data = await newUser.save();
 
     const token = await jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "7d",
     });
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
-      expires: new Date(Date.now() + 60 * 60 * 1000),
+       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.json({ success: true, message: "user data successfully saved", data });
@@ -89,12 +89,12 @@ userRouter.post("/login", async (req, res) => {
     } else {
       const { password, ...safeUser } = user._doc;
       const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "3h",
+        expiresIn: "7d",
       });
       res.cookie("token", token, {
         httpOnly: true,
         secure: false,
-        expires: new Date(Date.now() + 180 * 180 * 1000),
+       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       });
       res.json({ success: true, message: "login success", user: safeUser });
     }
