@@ -49,16 +49,30 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
 
 orderRouter.get("/orderList",userAuth,async(req,res)=>{
     try{
+
+        const page=parseInt(req.query.page) || 1;
+        const limit=parseInt(req.query.limit) || 10;
+        const skip=(page-1)*limit
+      
     const user=req.user;
-    const order=await Order.find({userId:user._id,isDeleted:false}).sort({createdAt:-1});
-    if(order.length===0){
-        return res.status(404).json({success:false,message:"No Orders found!"})
-    }
-    res.status(200).json({success:true,data:order})
+
+       const totalOrders = await Order.countDocuments({ userId: user._id, isDeleted: false })
+
+     const order=await Order.find({userId:user._id,isDeleted:false}).sort({createdAt:-1}).skip(skip).limit(limit);
+   
+    res.status(200).json({ 
+      success: true,
+      page,
+      limit,
+      totalPages: Math.ceil(totalOrders / limit),
+      totalRecords: totalOrders,
+      data: order
+    })
     }catch(err){
         res.status(400).send("ERROR :"+err.message)
     }
 })
+
 
 orderRouter.get("/order/:orderId",userAuth,async(req,res)=>{
     try{
