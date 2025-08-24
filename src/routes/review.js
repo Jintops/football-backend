@@ -40,7 +40,6 @@ reviewRouter.post("/addReview", userAuth, async (req, res) => {
 reviewRouter.get("/getReviews/:productId", async (req, res) => {
   try {
     const { productId } = req.params;
-
     if (!productId) {
       return res
         .status(404)

@@ -9,24 +9,19 @@ cartRouter.post("/addToCart/:productId", userAuth, async (req, res) => {
   try {
     const user = req.user;
     const { productId } = req.params;
+    const { quantity } = req.body;  // 👈 take quantity from frontend
 
     const product = await Product.findById(productId);
     if (!product) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
+      return res.status(404).json({ success: false, message: "Product not found" });
     }
 
     let cart = await Cart.findOne({ userId: user._id });
+
     if (!cart) {
       cart = new Cart({
         userId: user._id,
-        items: [
-          {
-            productId,
-            quantity: 1,
-          },
-        ],
+        items: [{ productId, quantity }], // 👈 use given quantity
       });
     } else {
       const existingItem = cart.items.find(
@@ -34,9 +29,9 @@ cartRouter.post("/addToCart/:productId", userAuth, async (req, res) => {
       );
 
       if (existingItem) {
-        existingItem.quantity += 1;
+        existingItem.quantity += quantity; // 👈 add given quantity
       } else {
-        cart.items.push({ productId, quantity: 1 });
+        cart.items.push({ productId, quantity }); // 👈 add given quantity
       }
     }
 
@@ -45,13 +40,16 @@ cartRouter.post("/addToCart/:productId", userAuth, async (req, res) => {
       "items.productId",
       "title price image salePrice"
     );
-    res
-      .status(200)
-      .json({ success: true, message: "added to cart", data: populatedCart });
+    res.status(200).json({
+      success: true,
+      message: "added to cart",
+      data: populatedCart,
+    });
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
 });
+
 
 cartRouter.get("/cartItems", userAuth, async (req, res) => {
   try {
