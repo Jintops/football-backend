@@ -103,6 +103,15 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
+
+userRouter.post("/sendOtpVerificationEmail",async(req,res)=>{
+  try{
+
+  }catch(err){
+    res.status(500).send("ERROR :"+err.message)
+  }
+})
+
 userRouter.post("/logout", async (req, res) => {
   res.clearCookie("token");
   res.status(200).json({ message: "Logout successful" });
