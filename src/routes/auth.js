@@ -5,8 +5,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { upload, imageUploadUtil } = require("../utils/cloudinary");
 const { PROFILE_URL } = require("../utils/constants");
-const validator=require('validator')
-
+const validator=require('validator');
+const OtpVerification = require("../models/otpVerification");
+const nodemailer = require("nodemailer");
 
 userRouter.post("/signup", upload.single("image"), async (req, res) => {
   try {
@@ -103,9 +104,45 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // upgrade later with STARTTLS
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASS,
+  },
+});
 
 userRouter.post("/sendOtpVerificationEmail",async(req,res)=>{
   try{
+   const {_id,email}=req.body;
+    const otp=`${Math.floor(1000+Math.random()*9000)}`;
+
+    const mailOptions={
+      from: process.env.EMAIL, 
+      to: email, // list of receivers
+      subject: "Verify your email", // Subject line
+      html: `<b>Enter  ${otp} to verify</b>`,
+    }
+
+    const newOtpVerify=await new OtpVerification({
+       userId:_id,
+       otp:otp,
+       createdAt:Date.now(),
+       expiresAt:Date.now()+3600000
+    })
+    await newOtpVerify.save();
+    await transporter.sendMail(mailOptions)
+
+    res.json({
+      status:"pending",
+      message:"verification otp send",
+      data:{
+        userId:_id,
+        email
+      }
+    })
 
   }catch(err){
     res.status(500).send("ERROR :"+err.message)
