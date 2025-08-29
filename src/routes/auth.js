@@ -44,8 +44,11 @@ userRouter.post("/signup", upload.single("image"), async (req, res) => {
       gender,
       lastName,
       photoUrl: imageUrl,
+      isVerified:false
     });
-    const data = await newUser.save();
+      
+    await sendOtpVerificationEmail(newUser, res);
+    // const data = await newUser.save();
 
     const token = await jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
@@ -107,18 +110,18 @@ userRouter.post("/login", async (req, res) => {
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // upgrade later with STARTTLS
+  secure: false, 
   auth: {
     user: process.env.EMAIL,
     pass: process.env.PASS,
   },
 });
 
-userRouter.post("/sendOtpVerificationEmail",async(req,res)=>{
+const sendOtpVerificationEmail=async({_id,email},res)=>{
   try{
-   const {_id,email}=req.body;
+   
     const otp=`${Math.floor(1000+Math.random()*9000)}`;
-
+ 
     const mailOptions={
       from: process.env.EMAIL, 
       to: email, // list of receivers
@@ -126,11 +129,13 @@ userRouter.post("/sendOtpVerificationEmail",async(req,res)=>{
       html: `<b>Enter  ${otp} to verify</b>`,
     }
 
+
+    const hashedOtp = await bcrypt.hash(otp, 10);
     const newOtpVerify=await new OtpVerification({
        userId:_id,
-       otp:otp,
+       otp:hashedOtp,
        createdAt:Date.now(),
-       expiresAt:Date.now()+3600000
+       expiresAt:Date.now()+ 5 * 60 * 1000
     })
     await newOtpVerify.save();
     await transporter.sendMail(mailOptions)
@@ -147,7 +152,7 @@ userRouter.post("/sendOtpVerificationEmail",async(req,res)=>{
   }catch(err){
     res.status(500).send("ERROR :"+err.message)
   }
-})
+}
 
 userRouter.post("/logout", async (req, res) => {
   res.clearCookie("token");
