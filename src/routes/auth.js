@@ -10,17 +10,16 @@ const OtpVerification = require("../models/otpVerification");
 const nodemailer = require("nodemailer");
 
 userRouter.post("/signup", upload.single("image"), async (req, res) => {
-
   try {
     const { firstName, emailId, password, phone, gender, lastName } = req.body;
 
-       if (!validator.isStrongPassword(password)) {
+    if (!validator.isStrongPassword(password)) {
       return res.status(400).json({
         success: false,
-        message:
-          "Password must be strong. Use at least 8 characters, including a number, uppercase, lowercase, and a special symbol.",
+        message: "Password must be strong. Use at least 8 characters, including a number, uppercase, lowercase, and a special symbol.",
       });
     }
+    
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.findOne({ emailId: emailId });
 
@@ -45,23 +44,41 @@ userRouter.post("/signup", upload.single("image"), async (req, res) => {
       gender,
       lastName,
       photoUrl: imageUrl,
-      isVerified:false
+      isVerified: false
     });
-       const savedUser = await newUser.save();
-    await sendOtpVerificationEmail(savedUser, res);
     
+    const savedUser = await newUser.save();
+    
+    // ✅ Fixed: Remove res parameter and handle errors properly
+    const otpResult = await sendOtpVerificationEmail(savedUser);
+    
+    if (!otpResult.success) {
+      // If OTP fails, we can still return success but mention email issue
+      return res.status(201).json({ 
+        success: true, 
+        message: "User created but failed to send verification email. Please try resending OTP.",
+        userId: savedUser._id,
+        emailSent: false
+      });
+    }
 
-    const token = await jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
+    const token = await jwt.sign({ _id: savedUser._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
-       maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ success: true, message: "user data successfully saved", userId: savedUser._id, });
+    res.json({ 
+      success: true, 
+      message: "User registered successfully. Please check your email for verification OTP.", 
+      userId: savedUser._id,
+      emailSent: true
+    });
+    
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -84,6 +101,16 @@ userRouter.post("/login", async (req, res) => {
       });
     }
 
+    // ✅ Check if user is verified
+    if (!user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: "Please verify your email before logging in",
+        needsVerification: true,
+        userId: user._id
+      });
+    }
+
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
@@ -99,7 +126,7 @@ userRouter.post("/login", async (req, res) => {
       res.cookie("token", token, {
         httpOnly: true,
         secure: false,
-       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       });
       res.json({ success: true, message: "login success", user: safeUser });
     }
@@ -107,6 +134,7 @@ userRouter.post("/login", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -118,36 +146,46 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendOtpVerificationEmail=async({_id,email},res)=>{
-  try{
-   
-    const otp=`${Math.floor(1000+Math.random()*9000)}`;
+// ✅ Fixed: Removed res parameter and proper error handling
+const sendOtpVerificationEmail = async ({_id, emailId}) => {
+  try {
+    const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
  
-    const mailOptions={
-      from: process.env.EMAIL, 
-      to: email, // list of receivers
-      subject: "Verify your email", // Subject line
-      html: `<b>Enter  ${otp} to verify</b>`,
-    }
-
+    const mailOptions = {
+      from:'"SoccerGear"<process.env.EMAIL>', 
+      to: emailId,
+      subject: "Verify your email", 
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Email Verification</h2>
+          <p>Please enter the following OTP to verify your email:</p>
+          <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 3px;">
+            ${otp}
+          </div>
+          <p><strong>This OTP will expire in 5 minutes.</strong></p>
+          <p>If you didn't request this, please ignore this email.</p>
+        </div>
+      `,
+    };
 
     const hashedOtp = await bcrypt.hash(otp, 10);
-    const newOtpVerify=await new OtpVerification({
-       userId:_id,
-       otp:hashedOtp,
-       createdAt:Date.now(),
-       expiresAt:Date.now()+ 5 * 60 * 1000
-    })
+    const newOtpVerify = new OtpVerification({
+      userId: _id,
+      otp: hashedOtp,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 5 * 60 * 1000
+    });
+    
     await newOtpVerify.save();
-    await transporter.sendMail(mailOptions)
+    await transporter.sendMail(mailOptions);
 
     return { success: true };
 
-  }catch(err){
-    res.status(500).send("ERROR :"+err.message)
+  } catch (err) {
+    console.error("OTP Email Error:", err);
+    return { success: false, error: err.message };
   }
-}
-
+};
 
 userRouter.post("/verify-otp", async (req, res) => {
   try {
@@ -176,7 +214,6 @@ userRouter.post("/verify-otp", async (req, res) => {
     await User.updateOne({ _id: userId }, { isVerified: true });
     await OtpVerification.deleteOne({ userId });
 
-    // Issue token after verification
     const token = await jwt.sign({ _id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
     res.cookie("token", token, {
@@ -191,6 +228,42 @@ userRouter.post("/verify-otp", async (req, res) => {
   }
 });
 
+// ✅ Added: Resend OTP functionality
+userRouter.post("/resend-otp", async (req, res) => {
+  try {
+    const { userId } = req.body;
+    
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "userId is required" });
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
+    if (user.isVerified) {
+      return res.status(400).json({ success: false, message: "User is already verified" });
+    }
+    
+    // Delete existing OTP
+    await OtpVerification.deleteOne({ userId });
+    
+    // Send new OTP
+    const otpResult = await sendOtpVerificationEmail(user);
+    
+    if (!otpResult.success) {
+      return res.status(500).json({ 
+        success: false, 
+        message: "Failed to send OTP email" 
+      });
+    }
+    
+    res.json({ success: true, message: "OTP resent successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 userRouter.post("/logout", async (req, res) => {
   res.clearCookie("token");
