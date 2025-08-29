@@ -152,7 +152,7 @@ const sendOtpVerificationEmail = async ({_id, emailId}) => {
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
  
     const mailOptions = {
-      from:'"SoccerGear"<process.env.EMAIL>', 
+      from:`"SoccerGear" <${process.env.EMAIL}>`, 
       to: emailId,
       subject: "Verify your email", 
       html: `
