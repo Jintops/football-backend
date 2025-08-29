@@ -10,6 +10,7 @@ const OtpVerification = require("../models/otpVerification");
 const nodemailer = require("nodemailer");
 
 userRouter.post("/signup", upload.single("image"), async (req, res) => {
+
   try {
     const { firstName, emailId, password, phone, gender, lastName } = req.body;
 
@@ -46,9 +47,9 @@ userRouter.post("/signup", upload.single("image"), async (req, res) => {
       photoUrl: imageUrl,
       isVerified:false
     });
-      
-    await sendOtpVerificationEmail(newUser, res);
-    // const data = await newUser.save();
+       const savedUser = await newUser.save();
+    await sendOtpVerificationEmail(savedUser, res);
+    
 
     const token = await jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
@@ -60,7 +61,7 @@ userRouter.post("/signup", upload.single("image"), async (req, res) => {
        maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ success: true, message: "user data successfully saved", data });
+    res.json({ success: true, message: "user data successfully saved", userId: savedUser._id, });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -140,19 +141,56 @@ const sendOtpVerificationEmail=async({_id,email},res)=>{
     await newOtpVerify.save();
     await transporter.sendMail(mailOptions)
 
-    res.json({
-      status:"pending",
-      message:"verification otp send",
-      data:{
-        userId:_id,
-        email
-      }
-    })
+    return { success: true };
 
   }catch(err){
     res.status(500).send("ERROR :"+err.message)
   }
 }
+
+
+userRouter.post("/verify-otp", async (req, res) => {
+  try {
+    const { userId, otp } = req.body;
+
+    if (!userId || !otp) {
+      return res.status(400).json({ success: false, message: "OTP and userId are required" });
+    }
+
+    const otpRecord = await OtpVerification.findOne({ userId });
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, message: "No OTP record found" });
+    }
+
+    if (otpRecord.expiresAt < Date.now()) {
+      await OtpVerification.deleteOne({ userId });
+      return res.status(400).json({ success: false, message: "OTP expired" });
+    }
+
+    const isValid = await bcrypt.compare(otp, otpRecord.otp);
+    if (!isValid) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+    }
+
+    // OTP is valid
+    await User.updateOne({ _id: userId }, { isVerified: true });
+    await OtpVerification.deleteOne({ userId });
+
+    // Issue token after verification
+    const token = await jwt.sign({ _id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ success: true, message: "Email verified successfully", token });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 
 userRouter.post("/logout", async (req, res) => {
   res.clearCookie("token");
