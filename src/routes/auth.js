@@ -146,6 +146,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+
 // ✅ Fixed: Removed res parameter and proper error handling
 const sendOtpVerificationEmail = async ({_id, emailId}) => {
   try {
@@ -190,18 +191,18 @@ const sendOtpVerificationEmail = async ({_id, emailId}) => {
 userRouter.post("/verify-otp", async (req, res) => {
   try {
     const { userId, otp } = req.body;
-
+    
     if (!userId || !otp) {
       return res.status(400).json({ success: false, message: "OTP and userId are required" });
     }
-
+   
     const otpRecord = await OtpVerification.findOne({ userId });
     if (!otpRecord) {
       return res.status(400).json({ success: false, message: "No OTP record found" });
     }
 
     if (otpRecord.expiresAt < Date.now()) {
-      await OtpVerification.deleteOne({ userId });
+      await OtpVerification.deleteOne({ userId});
       return res.status(400).json({ success: false, message: "OTP expired" });
     }
 
@@ -211,7 +212,7 @@ userRouter.post("/verify-otp", async (req, res) => {
     }
 
     // OTP is valid
-    await User.updateOne({ _id: userId }, { isVerified: true });
+    const user=await User.updateOne({ _id: userId }, { isVerified: true });
     await OtpVerification.deleteOne({ userId });
 
     const token = await jwt.sign({ _id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -222,7 +223,7 @@ userRouter.post("/verify-otp", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ success: true, message: "Email verified successfully", token });
+    res.json({ success: true, message: "Email verified successfully", token,data:user });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
