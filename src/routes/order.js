@@ -3,7 +3,7 @@ const { userAuth } = require('../middlewares/auth');
 const Product = require('../models/product');
 const Order = require('../models/order');
 const orderRouter=express.Router();
-
+const Address=require('../models/address')
 
 
 orderRouter.post("/createOrder",userAuth,async(req,res)=>{
@@ -17,6 +17,17 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
            return res.status(404).json({success:false,message:"NO Product found!"})
         }
       
+        // const saveAddress=new Address({
+        //       userId:user._id,
+        //       name:address.name,
+        //       phone:address.phone,
+        //       pincode:address.pincode,
+        //       place:address.place,
+        //       fullAddress:address.fullAddress,
+
+
+        // })
+        // await saveAddress.save();
         
         const cartItems=[
             {
@@ -45,6 +56,31 @@ orderRouter.post("/createOrder",userAuth,async(req,res)=>{
         res.status(400).send("ERROR :"+err.message)
     }
 });
+
+
+orderRouter.post("/address",userAuth,async(req,res)=>{
+    try{
+       
+     const user=req.user;
+     
+     const {name,phone,fullAddress,pincode,place}=req.body
+
+     const newAddress=new Address({
+        userId:user._id,
+        name,
+        phone,
+        pincode,
+        place,
+        fullAddress
+     })
+
+    const saveAddress= await newAddress.save();
+
+    res.status(200).json({success:true,message:"New Address Saved Successfully" ,data:saveAddress})
+    }catch(err){
+        res.status(500).send("ERROR :"+err.message)
+    }
+})
 
 
 orderRouter.get("/orderList",userAuth,async(req,res)=>{
