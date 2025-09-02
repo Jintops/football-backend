@@ -23,7 +23,7 @@ const addressSchema=new mongoose.Schema({
         },
       fullAddress: {
          type: String,
-          required: true
+          
          },
  
 },{timestamps:true})

@@ -6,8 +6,7 @@ const addressRouter=express.Router();
 
 addressRouter.post("/address",userAuth,async(req,res)=>{
     try{     
-     const user=req.user;
-   
+     const user=req.user;  
      const {name,phone,fullAddress,pincode,place}=req.body
 
      const newAddress=new Address({
@@ -42,7 +41,37 @@ addressRouter.get("/allAddress",userAuth,async(req,res)=>{
     }
 })
 
+addressRouter.put("/editAddress/:id",userAuth,async(req,res)=>{
+    try{
+        const user=req.user
+        const {id}=req.params
+        const {name,phone,fullAddress,pincode,place}=req.body
 
+
+        const address=await Address.findById(id)
+        
+        if(!address){
+            return res.status(404).json({success:false,message:"No Address found"})
+        }
+
+ if (address.userId.toString() !== user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Not authorized to edit this address" });
+    }
+
+        if(name) address.name=name      
+        if(phone) address.phone=phone
+        if(fullAddress) address.fullAddress=fullAddress
+        if(pincode) address.pincode=pincode
+        if(place) address.place=place
+
+       const editedAddress= await address.save()
+          
+        res.status(200).json({success:true,message:"Address edited successfully",data:editedAddress})
+
+    }catch(err){
+        res.status(500).send("ERROR :"+err.message)
+    }
+})
 
 
 module.exports=addressRouter;
