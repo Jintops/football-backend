@@ -11,6 +11,7 @@ const cartRouter = require("./routes/cart");
 const orderRouter = require("./routes/order");
 const paymentRouter = require("./routes/payment");
 const reviewRouter = require("./routes/review");
+const addressRouter = require("./routes/address");
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/", cartRouter);
 app.use("/",orderRouter)
 app.use("/",paymentRouter)
 app.use("/",reviewRouter)
+app.use("/",addressRouter)
 
 connectDB()
   .then(() => {
