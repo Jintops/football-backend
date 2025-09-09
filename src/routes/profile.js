@@ -43,8 +43,8 @@ profileRouter.put("/profile/edit", userAuth, upload.single("image"), async (req,
         user.photoId = result.public_id;
       }
 
-     await user.save();
-    res.status(200).json({ success: true, message: "user updated" });
+    const updateData= await user.save();
+    res.status(200).json({ success: true, message: "user updated",data:updateData });
   } catch (err) {
     res.status(400).send("ERROR :" + err.message);
   }
