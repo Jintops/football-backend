@@ -3,7 +3,8 @@ const { userAuth } = require("../middlewares/auth");
 const profileRouter = express.Router();
 const User = require("../models/user");
 const { validProfileEdit, validPassword } = require("../utils/validation");
-const bcrypt=require('bcrypt')
+const bcrypt=require('bcrypt');
+const { upload, imageUploadUtil } = require("../utils/cloudinary");
 
 profileRouter.get("/profile", userAuth, async (req, res) => {
   try {
@@ -20,7 +21,7 @@ profileRouter.get("/profile", userAuth, async (req, res) => {
   }
 });
 
-profileRouter.put("/profile/edit", userAuth, async (req, res) => {
+profileRouter.put("/profile/edit", userAuth, upload.single("image"), async (req, res) => {
   try {
     if (!validProfileEdit(req)) {
       throw new Error("edit failed!");
@@ -28,9 +29,14 @@ profileRouter.put("/profile/edit", userAuth, async (req, res) => {
 
     const user = req.user;
 
+  
     Object.keys(req.body).forEach((key) => {
       user[key] = req.body[key];
     });
+     if (req.file) {
+      const result = await imageUploadUtil(req.file);
+      user.photoUrl = result.secure_url;
+    }
 
      await user.save();
     res.status(200).json({ success: true, message: "user updated" });
