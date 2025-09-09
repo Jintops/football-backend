@@ -54,6 +54,9 @@ const userSchema = new mongoose.Schema(
     photoUrl: {
       type: String,
     },
+    photoId:{
+      type:String,
+    },
     isVerified: {
   type: Boolean,
   default: false,

@@ -5,7 +5,7 @@ const User = require("../models/user");
 const { validProfileEdit, validPassword } = require("../utils/validation");
 const bcrypt=require('bcrypt');
 const { upload, imageUploadUtil } = require("../utils/cloudinary");
-
+const { v2: cloudinary } = require("cloudinary");
 profileRouter.get("/profile", userAuth, async (req, res) => {
   try {
     const user = req.user;
@@ -33,10 +33,15 @@ profileRouter.put("/profile/edit", userAuth, upload.single("image"), async (req,
     Object.keys(req.body).forEach((key) => {
       user[key] = req.body[key];
     });
-     if (req.file) {
-      const result = await imageUploadUtil(req.file);
-      user.photoUrl = result.secure_url;
-    }
+
+     if (req.file) {      
+        if (user.photoId) {
+          await cloudinary.uploader.destroy(user.photoId);
+        }
+        const result = await imageUploadUtil(req.file);
+        user.photoUrl = result.secure_url;
+        user.photoId = result.public_id;
+      }
 
      await user.save();
     res.status(200).json({ success: true, message: "user updated" });
